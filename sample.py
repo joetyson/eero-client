@@ -40,10 +40,10 @@ if __name__ == '__main__':
         parser = ArgumentParser()
         parser.add_argument("-l", help="your eero login (email address or phone number)")
         args = parser.parse_args()
-        if args.l:
-            phone_number = args.l
-        else:
-            phone_number = six.moves.input('your eero login (email address or phone number): ')
+        phone_number = args.l or six.moves.input(
+            'your eero login (email address or phone number): '
+        )
+
         user_token = eero.login(phone_number)
         verification_code = six.moves.input('verification key from email or SMS: ')
         eero.login_verify(verification_code, user_token)

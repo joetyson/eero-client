@@ -12,10 +12,7 @@ class Eero(object):
 
     @property
     def _cookie_dict(self):
-        if self.needs_login():
-            return dict()
-        else:
-            return dict(s=self.session.cookie)
+        return dict() if self.needs_login() else dict(s=self.session.cookie)
 
     def needs_login(self):
         return self.session.cookie is None
@@ -54,32 +51,38 @@ class Eero(object):
                                           cookies=self._cookie_dict))
 
     def id_from_url(self, id_or_url):
-        match = re.search('^[0-9]+$', id_or_url)
-        if match:
-            return match.group(0)
-        match = re.search(r'\/([0-9]+)$', id_or_url)
-        if match:
-            return match.group(1)
+        if match := re.search('^[0-9]+$', id_or_url):
+            return match[0]
+        if match := re.search(r'\/([0-9]+)$', id_or_url):
+            return match[1]
 
     def networks(self, network_id):
-        return self.refreshed(lambda: self.client.get(
-                                        'networks/{}'.format(
-                                            self.id_from_url(network_id)),
-                                        cookies=self._cookie_dict))
+        return self.refreshed(
+            lambda: self.client.get(
+                f'networks/{self.id_from_url(network_id)}',
+                cookies=self._cookie_dict,
+            )
+        )
 
     def devices(self, network_id):
-        return self.refreshed(lambda: self.client.get(
-                                        'networks/{}/devices'.format(
-                                            self.id_from_url(network_id)),
-                                        cookies=self._cookie_dict))
+        return self.refreshed(
+            lambda: self.client.get(
+                f'networks/{self.id_from_url(network_id)}/devices',
+                cookies=self._cookie_dict,
+            )
+        )
 
     def eeros(self, network_id):
-        return self.refreshed(lambda: self.client.get(
-                                        'networks/{}/eeros'.format(
-                                            self.id_from_url(network_id)),
-                                        cookies=self._cookie_dict))
+        return self.refreshed(
+            lambda: self.client.get(
+                f'networks/{self.id_from_url(network_id)}/eeros',
+                cookies=self._cookie_dict,
+            )
+        )
 
     def reboot(self, device_id):
-        return self.refreshed(lambda: self.client.post(
-                                        'eeros/{}/reboot'.format(device_id),
-                                        cookies=self._cookie_dict))
+        return self.refreshed(
+            lambda: self.client.post(
+                f'eeros/{device_id}/reboot', cookies=self._cookie_dict
+            )
+        )
